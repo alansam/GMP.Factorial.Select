@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5AD8145323DFF90600F4D012 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 5AD8145223DFF90600F4D012 /* main.c */; };
+		5A8AEE0F23E5EFC80066041A /* gfg-factorial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */; };
+		5AD8145323DFF90600F4D012 /* factorial_select.c in Sources */ = {isa = PBXBuildFile; fileRef = 5AD8145223DFF90600F4D012 /* factorial_select.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +24,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gfg-factorial.cpp"; sourceTree = "<group>"; };
+		5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "gfg-factorial.hpp"; sourceTree = "<group>"; };
 		5AD8144F23DFF90600F4D012 /* GMP.Factorial.Select */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GMP.Factorial.Select; sourceTree = BUILT_PRODUCTS_DIR; };
-		5AD8145223DFF90600F4D012 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		5AD8145223DFF90600F4D012 /* factorial_select.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = factorial_select.c; sourceTree = "<group>"; };
+		5AD8145923DFFC2400F4D012 /* version_info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_info.h; sourceTree = "<group>"; };
+		5AD8145A23DFFCE800F4D012 /* GMP.Factorial.Select.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GMP.Factorial.Select.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +62,11 @@
 		5AD8145123DFF90600F4D012 /* GMP.Factorial.Select */ = {
 			isa = PBXGroup;
 			children = (
-				5AD8145223DFF90600F4D012 /* main.c */,
+				5AD8145223DFF90600F4D012 /* factorial_select.c */,
+				5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */,
+				5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */,
+				5AD8145923DFFC2400F4D012 /* version_info.h */,
+				5AD8145A23DFFCE800F4D012 /* GMP.Factorial.Select.entitlements */,
 			);
 			path = GMP.Factorial.Select;
 			sourceTree = "<group>";
@@ -119,7 +128,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5AD8145323DFF90600F4D012 /* main.c in Sources */,
+				5A8AEE0F23E5EFC80066041A /* gfg-factorial.cpp in Sources */,
+				5AD8145323DFF90600F4D012 /* factorial_select.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,9 +248,15 @@
 		5AD8145723DFF90600F4D012 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = GMP.Factorial.Select/GMP.Factorial.Select.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HD3NHZ5324;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = /usr/local/lib;
+				"OTHER_LDFLAGS[arch=*]" = "-lgmp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,9 +264,12 @@
 		5AD8145823DFF90600F4D012 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = GMP.Factorial.Select/GMP.Factorial.Select.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HD3NHZ5324;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
