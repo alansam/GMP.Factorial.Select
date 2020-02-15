@@ -17,16 +17,17 @@
  *
  * Examples :
  *
- * Input : 100
+ * Input  : 100
  * Output : 933262154439441526816992388562667004-
  *          907159682643816214685929638952175999-
  *          932299156089414639761565182862536979-
  *          208272237582511852109168640000000000-
  *          00000000000000
  *
- * Input :50
+ * Input  : 50
  * Output : 3041409320171337804361260816606476884-
  *          4377641568960512000000000000
+ *
  * Following is a simple solution where we use an array to store individual digits
  * of the result. The idea is to use basic mathematics for multiplication.
  *
@@ -105,9 +106,28 @@ extern "C" {
 #define MAX 5000
 #endif
 
-// This function finds factorial of large numbers
-// and prints them
+/*
+ *  MARK: gfg_factorial()
+ *
+ *  This function finds factorial of large numbers and prints them
+ */
 void gfg_factorial(uint64_t n_fact) {
+
+  char * szfactorial;
+
+  szfactorial = get_factorial(n_fact);
+  std::string factorial(szfactorial);
+  std::cout << std::setw(6) << n_fact << "! " << std::setw(20) << factorial << std::endl;
+
+  free(szfactorial);
+
+  return;
+}
+
+/*
+ *  MARK: get_factorial()
+ */
+char * get_factorial(uint64_t n_fact) {
   uint8_t res[MAX] = { 0, };
 
   // Initialize result
@@ -119,24 +139,28 @@ void gfg_factorial(uint64_t n_fact) {
     res_size = gfg_multiply(x_, res, res_size);
   }
 
-//  std::cout << "Factorial of given number is ";
-//  std::cout << n_fact << "! is: ";
   std::string factorial;
   for (size_t i_ = res_size; i_ > 0; i_--) {
-//    std::cout << res[i_ - 1];
-    std::string intermediate = std::to_string(res[i_ - 1]);
-    factorial.append(intermediate);
+    char c_to_insert;
+    c_to_insert = res[i_ - 1] + '0';
+    factorial += (c_to_insert);
   }
-  std::cout << std::setw(6) << n_fact << "! " << std::setw(20) << factorial << std::endl;
-//  std::cout << std::endl;
 
-  return;
+  size_t factorial_len = factorial.size() + 1;
+  char * fact_string = (char *) malloc(factorial_len);
+  strncpy(fact_string, factorial.c_str(), factorial_len);
+
+  return fact_string;
 }
 
-// This function multiplies x with the number represented by res[].
-// res_size is size of res[] or number of digits in the number represented by res[].
-// This function uses simple school mathematics for multiplication.
-// This function may value of res_size and returns the new value of res_size
+/*
+ *  MARK: gfg_multiply()
+ *
+ *  This function multiplies x with the number represented by res[].
+ *  res_size is size of res[] or number of digits in the number represented by res[].
+ *  This function uses simple school mathematics for multiplication.
+ *  This function may value of res_size and returns the new value of res_size
+ */
 size_t gfg_multiply(uint64_t x_multiplicand, uint8_t res[], size_t res_size) {
   uint8_t carry = 0; // Initialize carry
 
@@ -145,7 +169,7 @@ size_t gfg_multiply(uint64_t x_multiplicand, uint8_t res[], size_t res_size) {
     uint64_t prod = res[i_] * x_multiplicand + carry;
 
     // Store last digit of 'prod' in res[]
-    res[i_] = prod % 10;
+    res[i_] = (prod % 10);
 
     // Put rest in carry
     carry = prod / 10;
@@ -153,7 +177,7 @@ size_t gfg_multiply(uint64_t x_multiplicand, uint8_t res[], size_t res_size) {
 
   // Put carry in res and increase result size
   while (carry) {
-    res[res_size] = carry % 10;
+    res[res_size] = (carry % 10);
     carry = carry / 10;
     res_size++;
   }

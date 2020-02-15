@@ -29,6 +29,7 @@ extern "C" {
 
 size_t gfg_multiply(uint64_t x_multiplicand, uint8_t res[], size_t res_size);
 void gfg_factorial(uint64_t n_fact);
+char * get_factorial(uint64_t n_fact);
 
 #ifdef __cplusplus
 } /* extern "C" */
