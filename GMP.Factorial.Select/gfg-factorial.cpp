@@ -117,7 +117,7 @@ void gfg_factorial(uint64_t n_fact) {
 
   szfactorial = get_factorial(n_fact);
   std::string factorial(szfactorial);
-  std::cout << std::setw(6) << n_fact << "! " << std::setw(20) << factorial << std::endl;
+  std::cout << std::setw(6) << n_fact << "!: " << std::setw(20) << factorial << std::endl;
 
   free(szfactorial);
 

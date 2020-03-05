@@ -33,12 +33,18 @@ void version_details(void);
 #include "version_info.h"
 
 void factorial_u32(uint64_t nbegin, uint64_t nend);
+void factorial_s32(uint64_t nbegin, uint64_t nend);
 void factorial_u64(uint64_t nbegin, uint64_t nend);
+void factorial_s64(uint64_t nbegin, uint64_t nend);
 void factorial_gmp(uint64_t nbegin, uint64_t nend);
 void factorial_gfg(uint64_t nbegin, uint64_t nend);
+void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend);
 void fact_u32(uint64_t val);
+void fact_s32(uint64_t val);
 void fact_u64(uint64_t val);
+void fact_s64(uint64_t val);
 void fact_gmp(uint64_t val);
+void fact_u64_unrolled(uint64_t val);
 
 /*
  *  MARK: main()
@@ -61,11 +67,18 @@ int main(int argc, char const * argv[]) {
 
     factorial_u32(nbegin, nend);
     puts("");
+    factorial_s32(nbegin, nend);
+    puts("");
     factorial_u64(nbegin, nend);
+    puts("");
+    factorial_s64(nbegin, nend);
     puts("");
     factorial_gmp(nbegin, nend);
     puts("");
     factorial_gfg(nbegin, nend);
+    puts("");
+    factorial_u64_unrolled(nbegin, nend);
+    puts("");
   }
 
   return RC;
@@ -77,6 +90,18 @@ int main(int argc, char const * argv[]) {
 void factorial_u32(uint64_t nbegin, uint64_t nend) {
 
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {32-bit values}:\n\n", nbegin, nend);
+  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_s32(nb);
+  }
+
+  return;
+}
+
+void factorial_s32(uint64_t nbegin, uint64_t nend) {
+  
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {32-bit values}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_u32(nb);
   }
@@ -90,8 +115,37 @@ void factorial_u32(uint64_t nbegin, uint64_t nend) {
 void factorial_u64(uint64_t nbegin, uint64_t nend) {
 
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_u64(nb);
+  }
+
+  return;
+}
+
+/*
+ *  MARK: factorial_u64_unrolled()
+ */
+void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend) {
+
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_u64_unrolled(nb);
+  }
+
+  return;
+}
+
+/*
+ *  MARK: factorial_s64()
+ */
+void factorial_s64(uint64_t nbegin, uint64_t nend) {
+  
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_s64(nb);
   }
 
   return;
@@ -103,6 +157,10 @@ void factorial_u64(uint64_t nbegin, uint64_t nend) {
 void factorial_gmp(uint64_t nbegin, uint64_t nend) {
 
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {multiple precision aritmatic}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_gmp(nb);
   }
@@ -113,12 +171,17 @@ void factorial_gmp(uint64_t nbegin, uint64_t nend) {
 void factorial_gfg(uint64_t nbegin, uint64_t nend) {
 
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {multiple precision aritmatic}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     gfg_factorial(nb);
   }
 
   return;
 }
+
 /*
  *  MARK: fact_u32()
  */
@@ -131,13 +194,36 @@ void fact_u32(uint64_t val) {
 
   for (uint32_t i_ = 1; i_ <= val ; ++i_) {
     uint32_t intermediate;
-    overflow = __builtin_mul_overflow(fv, i_, &intermediate);
+    overflow = __builtin_umul_overflow(fv, i_, &intermediate);
     overflowed = overflowed ? overflowed : overflow;
     fv = intermediate;
     //fv = fv * i_;
   }
 
   printf("%6" PRIu64 "!: %20" PRIu32 " %s\n", val, fv, overflowed ? "*- overflow -*" : "");
+
+  return;
+}
+
+/*
+ *  MARK: fact_s32()
+ */
+void fact_s32(uint64_t val) {
+  
+  int32_t fv = 1;
+  bool overflow;
+  bool overflowed;
+  overflow = overflowed = false;;
+
+  for (int32_t i_ = 1; i_ <= val ; ++i_) {
+    int32_t intermediate;
+    overflow = __builtin_smul_overflow(fv, i_, &intermediate);
+    overflowed = overflowed ? overflowed : overflow;
+    fv = intermediate;
+    //fv = fv * i_;
+  }
+
+  printf("%6" PRIu64 "!: %20" PRId32 " %s\n", val, fv, overflowed ? "*- overflow -*" : "");
 
   return;
 }
@@ -166,6 +252,95 @@ void fact_u64(uint64_t val) {
 }
 
 /*
+ *  MARK: fact_u64_unrolled()
+ */
+void fact_u64_unrolled(uint64_t val) {
+
+  uint64_t fv = 1;
+  bool overflowed;
+  overflowed = false;;
+
+  uint64_t ix = 1;
+  switch (val) {
+    case 20:  //  TODO: max factorial for 64-bit integers
+      fv = fv * ++ix;
+    case 19:
+      fv = fv * ++ix;
+    case 18:
+      fv = fv * ++ix;
+    case 17:
+      fv = fv * ++ix;
+    case 16:
+      fv = fv * ++ix;
+    case 15:
+      fv = fv * ++ix;
+    case 14:
+      fv = fv * ++ix;
+    case 13:
+      fv = fv * ++ix;
+    case 12:  //  TODO: max factorial for 32-bit integers
+      fv = fv * ++ix;
+    case 11:
+      fv = fv * ++ix;
+    case 10:
+      fv = fv * ++ix;
+    case  9:
+      fv = fv * ++ix;
+    case  8:
+      fv = fv * ++ix;
+    case  7:
+      fv = fv * ++ix;
+    case  6:
+      fv = fv * ++ix;
+    case  5:
+      fv = fv * ++ix;
+    case  4:
+      fv = fv * ++ix;
+    case  3:
+      fv = fv * ++ix;
+    case  2:
+      fv = fv * ++ix;
+      break;
+
+    case  1:
+      fv = 1;
+      break;
+
+    default:
+      fv = 0;
+      overflowed = true;
+      break;
+  }
+
+  printf("%6" PRIu64 "!: %20" PRIu64 " %s\n", val, fv, overflowed ? "*- overflow -*" : "");
+
+  return;
+}
+
+/*
+ *  MARK: fact_s64()
+ */
+void fact_s64(uint64_t val) {
+  
+  int64_t fv = 1;
+  bool overflow;
+  bool overflowed;
+  overflow = overflowed = false;;
+
+  for (int64_t i_ = 1; i_ <= val ; ++i_) {
+    int64_t intermediate;
+    overflow = __builtin_smulll_overflow(fv, i_, &intermediate);
+    overflowed = overflowed ? overflowed : overflow;
+    fv = intermediate;
+    // fv = fv * i_;
+  }
+
+  printf("%6" PRIu64 "!: %20" PRId64 " %s\n", val, fv, overflowed ? "*- overflow -*" : "");
+
+  return;
+}
+
+/*
  *  MARK: fact_gmp()
  */
 void fact_gmp(uint64_t val) {
@@ -182,4 +357,3 @@ void fact_gmp(uint64_t val) {
 
   return;
 }
-

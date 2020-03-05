@@ -26,6 +26,7 @@
 /* Begin PBXFileReference section */
 		5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gfg-factorial.cpp"; sourceTree = "<group>"; };
 		5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "gfg-factorial.hpp"; sourceTree = "<group>"; };
+		5ACE847D23F9E41400C4CB25 /* factorial_select.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = factorial_select.log; sourceTree = "<group>"; };
 		5AD8144F23DFF90600F4D012 /* GMP.Factorial.Select */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GMP.Factorial.Select; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AD8145223DFF90600F4D012 /* factorial_select.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = factorial_select.c; sourceTree = "<group>"; };
 		5AD8145923DFFC2400F4D012 /* version_info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_info.h; sourceTree = "<group>"; };
@@ -67,6 +68,7 @@
 				5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */,
 				5AD8145923DFFC2400F4D012 /* version_info.h */,
 				5AD8145A23DFFCE800F4D012 /* GMP.Factorial.Select.entitlements */,
+				5ACE847D23F9E41400C4CB25 /* factorial_select.log */,
 			);
 			path = GMP.Factorial.Select;
 			sourceTree = "<group>";
