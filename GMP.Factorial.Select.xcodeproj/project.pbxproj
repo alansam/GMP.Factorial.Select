@@ -272,6 +272,7 @@
 				DEVELOPMENT_TEAM = HD3NHZ5324;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				"OTHER_LDFLAGS[arch=*]" = "-lgmp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

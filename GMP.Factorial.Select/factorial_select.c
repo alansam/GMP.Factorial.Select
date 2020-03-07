@@ -86,9 +86,12 @@ int main(int argc, char const * argv[]) {
 
 /*
  *  MARK: factorial_u32()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
  */
 void factorial_u32(uint64_t nbegin, uint64_t nend) {
 
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {32-bit values}:\n\n", nbegin, nend);
   printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
@@ -98,8 +101,14 @@ void factorial_u32(uint64_t nbegin, uint64_t nend) {
   return;
 }
 
+/*
+ *  MARK: factorial_s32()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
+ */
 void factorial_s32(uint64_t nbegin, uint64_t nend) {
   
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {32-bit values}:\n\n", nbegin, nend);
   printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
@@ -111,9 +120,12 @@ void factorial_s32(uint64_t nbegin, uint64_t nend) {
 
 /*
  *  MARK: factorial_u64()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
  */
 void factorial_u64(uint64_t nbegin, uint64_t nend) {
 
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
   printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
@@ -125,9 +137,12 @@ void factorial_u64(uint64_t nbegin, uint64_t nend) {
 
 /*
  *  MARK: factorial_u64_unrolled()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
  */
 void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend) {
 
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
   printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
@@ -139,9 +154,12 @@ void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend) {
 
 /*
  *  MARK: factorial_s64()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
  */
 void factorial_s64(uint64_t nbegin, uint64_t nend) {
   
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
   printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
@@ -153,9 +171,12 @@ void factorial_s64(uint64_t nbegin, uint64_t nend) {
 
 /*
  *  MARK: factorial_gmp()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
  */
 void factorial_gmp(uint64_t nbegin, uint64_t nend) {
 
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {multiple precision aritmatic}:\n\n", nbegin, nend);
   printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
   printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
@@ -168,8 +189,14 @@ void factorial_gmp(uint64_t nbegin, uint64_t nend) {
   return;
 }
 
+/*
+ *  MARK: factorial_gfg()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
+ */
 void factorial_gfg(uint64_t nbegin, uint64_t nend) {
 
+  printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {multiple precision aritmatic}:\n\n", nbegin, nend);
   printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
   printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
@@ -184,6 +211,10 @@ void factorial_gfg(uint64_t nbegin, uint64_t nend) {
 
 /*
  *  MARK: fact_u32()
+ *
+ *  Calculate val! using unsigned 32-bit integers
+ *  Arithmetic overflow is prevented via __builtin_umul_overflow()
+ *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
  */
 void fact_u32(uint64_t val) {
 
@@ -207,6 +238,10 @@ void fact_u32(uint64_t val) {
 
 /*
  *  MARK: fact_s32()
+ *
+ *  Calculate val! using signed 32-bit integers
+ *  Arithmetic overflow is prevented via __builtin_smul_overflow()
+ *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
  */
 void fact_s32(uint64_t val) {
   
@@ -230,6 +265,10 @@ void fact_s32(uint64_t val) {
 
 /*
  *  MARK: fact_u64()
+ *
+ *  Calculate val! using unsigned 64-bit integers
+ *  Arithmetic overflow is prevented via __builtin_umulll_overflow()
+ *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
  */
 void fact_u64(uint64_t val) {
 
@@ -253,6 +292,10 @@ void fact_u64(uint64_t val) {
 
 /*
  *  MARK: fact_u64_unrolled()
+ *
+ *  Calculate val! using unsigned 64-bit integers.
+ *  Observing that the largest factorial that can be stored in a 64-bit integer is 20!
+ *  and a 32-bit integer is 12!the loop unrolled and replaced by a switch statement.
  */
 void fact_u64_unrolled(uint64_t val) {
 
@@ -319,6 +362,10 @@ void fact_u64_unrolled(uint64_t val) {
 
 /*
  *  MARK: fact_s64()
+ *
+ *  Calculate val! using signed 64-bit integers.
+ *  Arithmetic overflow is prevented via __builtin_smulll_overflow()
+ *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
  */
 void fact_s64(uint64_t val) {
   
@@ -342,6 +389,9 @@ void fact_s64(uint64_t val) {
 
 /*
  *  MARK: fact_gmp()
+ *
+ *  Calculate val! using GNU Multiple Precision Aritmetic Library (GMP)
+ *  @see: https://gmplib.org/manual/index.html#Top
  */
 void fact_gmp(uint64_t val) {
 
