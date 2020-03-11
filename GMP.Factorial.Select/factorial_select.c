@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <float.h>
 #include <gmp.h>
 
 #include "gfg-factorial.hpp"
@@ -40,6 +41,9 @@ void factorial_gmp(uint64_t nbegin, uint64_t nend);
 void factorial_gfg(uint64_t nbegin, uint64_t nend);
 void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend);
 void factorial_u64_tabular(uint64_t nbegin, uint64_t nend);
+void factorial_float(uint64_t nbegin, uint64_t nend);
+void factorial_double(uint64_t nbegin, uint64_t nend);
+void factorial_longdouble(uint64_t nbegin, uint64_t nend);
 void fact_u32(uint64_t val);
 void fact_s32(uint64_t val);
 void fact_u64(uint64_t val);
@@ -47,6 +51,9 @@ void fact_s64(uint64_t val);
 void fact_gmp(uint64_t val);
 void fact_u64_unrolled(uint64_t val);
 void fact_u64_tabular(uint64_t val);
+void fact_float(uint64_t val);
+void fact_double(uint64_t val);
+void fact_longdouble(uint64_t val);
 
 /*
  *  MARK: main()
@@ -82,6 +89,12 @@ int main(int argc, char const * argv[]) {
     factorial_u64_unrolled(nbegin, nend);
     putchar('\n');
     factorial_u64_tabular(nbegin, nend);
+    putchar('\n');
+    factorial_float(nbegin, nend);
+    putchar('\n');
+    factorial_double(nbegin, nend);
+    putchar('\n');
+    factorial_longdouble(nbegin, nend);
     putchar('\n');
   }
 
@@ -225,6 +238,78 @@ void factorial_gfg(uint64_t nbegin, uint64_t nend) {
   printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     gfg_factorial(nb);
+  }
+
+  return;
+}
+
+/*
+ *  MARK: factorial_float()
+ */
+void factorial_float(uint64_t nbegin, uint64_t nend) {
+  
+  printf("Function: %s\n", __func__);
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {single precision floating point}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20.3f <-- %s\n", __FLT_MAX__, "FLT_MAX");
+  printf("......>: %20.14e <-- %s\n", __FLT_MAX__, "FLT_MAX");
+  printf("......>: %20.3lf <-- %s\n", __DBL_MAX__, "DBL_MAX");
+  printf("......>: %20.13le <-- %s\n", __DBL_MAX__, "DBL_MAX");
+  printf("......>: %20.3Lf <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  printf("......>: %20.12Le <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_float(nb);
+  }
+
+  return;
+}
+
+/*
+ *  MARK: factorial_double()
+ */
+void factorial_double(uint64_t nbegin, uint64_t nend) {
+
+  printf("Function: %s\n", __func__);
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {double precision floating point}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20.3f <-- %s\n", __FLT_MAX__, "FLT_MAX");
+  printf("......>: %20.14e <-- %s\n", __FLT_MAX__, "FLT_MAX");
+  printf("......>: %20.3lf <-- %s\n", __DBL_MAX__, "DBL_MAX");
+  printf("......>: %20.13le <-- %s\n", __DBL_MAX__, "DBL_MAX");
+  printf("......>: %20.3Lf <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  printf("......>: %20.12Le <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_double(nb);
+  }
+
+  return;
+}
+
+/*
+ *  MARK: factorial_longdouble()
+ */
+void factorial_longdouble(uint64_t nbegin, uint64_t nend) {
+
+  printf("Function: %s\n", __func__);
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {long double precision floating point}:\n\n", nbegin, nend);
+  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20.3f <-- %s\n", __FLT_MAX__, "FLT_MAX");
+  printf("......>: %20.14e <-- %s\n", __FLT_MAX__, "FLT_MAX");
+  printf("......>: %20.3lf <-- %s\n", __DBL_MAX__, "DBL_MAX");
+  printf("......>: %20.13le <-- %s\n", __DBL_MAX__, "DBL_MAX");
+  printf("......>: %20.3Lf <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  printf("......>: %20.12Le <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_longdouble(nb);
   }
 
   return;
@@ -479,6 +564,54 @@ void fact_gmp(uint64_t val) {
 
   gmp_printf("%6" PRIu64 "!: %20Zd\n", val, pf);
   mpz_clear(pf);
+
+  return;
+}
+
+/*
+ *  MARK: fact_float()
+ */
+void fact_float(uint64_t val) {
+
+  float fv = 1;
+
+  for (uint64_t i_ = 1; i_ <= val ; ++i_) {
+    fv = fv * i_;
+  }
+
+  printf("%6" PRIu64 "!: %20.0f\n", val, fv);
+
+  return;
+}
+
+/*
+ *  MARK: fact_double()
+ */
+void fact_double(uint64_t val) {
+
+  double fv = 1;
+
+  for (uint64_t i_ = 1; i_ <= val ; ++i_) {
+    fv = fv * i_;
+  }
+
+  printf("%6" PRIu64 "!: %20.0lf\n", val, fv);
+
+  return;
+}
+
+/*
+ *  MARK: fact_longdouble()
+ */
+void fact_longdouble(uint64_t val) {
+
+  long double fv = 1;
+
+  for (uint64_t i_ = 1; i_ <= val ; ++i_) {
+    fv = fv * i_;
+  }
+
+  printf("%6" PRIu64 "!: %20.0Lf\n", val, fv);
 
   return;
 }
