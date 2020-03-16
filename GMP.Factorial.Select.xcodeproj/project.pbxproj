@@ -27,6 +27,10 @@
 		5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gfg-factorial.cpp"; sourceTree = "<group>"; };
 		5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "gfg-factorial.hpp"; sourceTree = "<group>"; };
 		5AB996F12418C254007F96BC /* factorial_select.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = factorial_select.log; sourceTree = "<group>"; };
+		5AB996F224197DE0007F96BC /* factorial_select.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = factorial_select.md; sourceTree = "<group>"; };
+		5AB996F324197EA6007F96BC /* markdown_cheat_sheet_links.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = markdown_cheat_sheet_links.md; sourceTree = "<group>"; };
+		5AB996F4241A3578007F96BC /* markdown_cheat_sheet_links.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = markdown_cheat_sheet_links.html; sourceTree = "<group>"; };
+		5AB996F5241A359A007F96BC /* factorial_select.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = factorial_select.html; sourceTree = "<group>"; };
 		5AD8144F23DFF90600F4D012 /* GMP.Factorial.Select */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GMP.Factorial.Select; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AD8145223DFF90600F4D012 /* factorial_select.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = factorial_select.c; sourceTree = "<group>"; };
 		5AD8145923DFFC2400F4D012 /* version_info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_info.h; sourceTree = "<group>"; };
@@ -69,6 +73,10 @@
 				5AD8145923DFFC2400F4D012 /* version_info.h */,
 				5AD8145A23DFFCE800F4D012 /* GMP.Factorial.Select.entitlements */,
 				5AB996F12418C254007F96BC /* factorial_select.log */,
+				5AB996F224197DE0007F96BC /* factorial_select.md */,
+				5AB996F5241A359A007F96BC /* factorial_select.html */,
+				5AB996F324197EA6007F96BC /* markdown_cheat_sheet_links.md */,
+				5AB996F4241A3578007F96BC /* markdown_cheat_sheet_links.html */,
 			);
 			path = GMP.Factorial.Select;
 			sourceTree = "<group>";
