@@ -1,0 +1,272 @@
+<html>
+<head>
+  <title>Factorial Calculators</title>
+</head>
+<body>
+  <h1 id="factorialcalculatorsfordifferentdatatypes">Factorial Calculators for Different Data Types</h1>
+
+  <p>A selection of factorial calculations for the various data types available to C demonstrating the limitations
+  in those datatypes in dealing with very large numbers.</p>
+
+  <h2 id="cfunctionswithintheprogram">C functions within the program</h2>
+
+  <h3 id="driverfunctions">Driver Functions</h3>
+
+  <p>The driver functions set up the environment then a main loop that calls the related calculator function a specified number of times. The start and end values are provided as arguments to the program&#8217;s main
+  routine.</p>
+
+  <pre><code>void factorial_u32(uint64_t nbegin, uint64_t nend);
+  void factorial_s32(uint64_t nbegin, uint64_t nend);
+  void factorial_u64(uint64_t nbegin, uint64_t nend);
+  void factorial_s64(uint64_t nbegin, uint64_t nend);
+
+  void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend);
+  void factorial_u64_tabular(uint64_t nbegin, uint64_t nend);
+
+  void factorial_float(uint64_t nbegin, uint64_t nend);
+  void factorial_double(uint64_t nbegin, uint64_t nend);
+  void factorial_longdouble(uint64_t nbegin, uint64_t nend);
+
+  void factorial_gmp(uint64_t nbegin, uint64_t nend);
+  void factorial_gfg(uint64_t nbegin, uint64_t nend);
+  </code></pre>
+
+  <h3 id="factorialcalculators">Factorial Calculators</h3>
+
+  <p>Each calculator uses an iterative method to resolve the factorial of the value given as the argument to the function. Each function displays the result to the standard output stream. The functions are broken into three major groups: integer, floating point, and arbitary precision. The integer calculations are further broken down into iterative, unrolled loop and tabular methods.</p>
+
+  <pre><code>void fact_u32(uint64_t val);
+  void fact_s32(uint64_t val);
+  void fact_u64(uint64_t val);
+  void fact_s64(uint64_t val);
+
+  void fact_u64_unrolled(uint64_t val);
+  void fact_u64_tabular(uint64_t val);
+
+  void fact_float(uint64_t val);
+  void fact_double(uint64_t val);
+  void fact_longdouble(uint64_t val);
+
+  void fact_gmp(uint64_t val);
+  void gfg_factorial(uint64_t n_fact);
+  </code></pre>
+
+  <h2 id="methodology">Methodology</h2>
+
+  <h3 id="integercalculators">Integer Calculators</h3>
+
+  <p><em><strong>NOTE:</strong> In the current compiler implementation; <code>long int</code> and <code>long long int</code> are both 64-bit.</em></p>
+
+  <p>While the C standard indicates that unsigned integer calculations can never overflow, this logically not
+  acceptable when calculating larhe integers. Because the language does not trap these overflows or throw exceptions the program takes steps to ensure that logical overflows are trapped and handled. The mechanism used via functions from the GNU built-in methods that perform arithmetic overflow checking: <code>__builtin_umul_overflow()</code> and <code>__builtin_smul_overflow()</code> etc. See the GNU document <a href="https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html">Built-in Functions to Perform Arithmetic with Overflow Checking</a> for details.</p>
+
+  <p>It should also be noted that the maximum size for <code>unsigned int</code>, <code>unsigned long int</code>, and <code>unsigned long long int</code> run out of space in very short order.
+  See the following table for details:</p>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> Factorial </th>
+    <th style="text-align:left;"> Type </th>
+    <th style="text-align:right;"> Value </th>
+    <th style="text-align:right;"> Maximum Signed Value </th>
+    <th style="text-align:right;"> Maximum Unsigned Value </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:left;"> 32-bit int </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:right;"> <code>2147483647</code> </td>
+    <td style="text-align:right;"> <code>4294967295</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:left;"> 64-bit int </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+    <td style="text-align:right;"> <code>9223372036854775807</code> </td>
+    <td style="text-align:right;"> <code>18446744073709551615</code> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>and the same data after pivoting the tables to better see the progression:</p>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:center;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> 32&#8211;bit values </th>
+    <th style="text-align:right;"> </th>
+    <th style="text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </th>
+    <th style="text-align:left;"> 64&#8211;bit values </th>
+    <th style="text-align:right;"> </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong>    </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:center;">  </td>
+    <td style="text-align:left;"> <strong>20!</strong>    </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong><code>INT_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>2147483647</code> </td>
+    <td style="text-align:center;">  </td>
+    <td style="text-align:left;"> <strong><code>LONG_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>9223372036854775807</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong><code>UINT_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>4294967295</code> </td>
+    <td style="text-align:center;">  </td>
+    <td style="text-align:left;"> <strong><code>ULONG_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>18446744073709551615</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong>    </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:center;">  </td>
+    <td style="text-align:left;"> <strong>21!</strong>    </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>As these values are not particularly large, the largest iteration is 20 before integers run out of space, it&#8217;s simple to unroll both unroll loop and generate a lookup table fro the first 20 factorrial values. Both of these solutions are presented and the table of factorials is presented below.</p>
+
+  <h3 id="tableoffactorialvaluesfrom1to20">Table of factorial values from 1! to 20!</h3>
+
+  <pre><code>  uint64_t const factorials[] = {
+      /* 0!*/                   0ULL, /* TODO: Added to make picking factorials intuitive */
+      /* 1!*/                   1ULL,
+      /* 2!*/                   2ULL,
+      /* 3!*/                   6ULL,
+      /* 4!*/                  24ULL,
+      /* 5!*/                 120ULL,
+      /* 6!*/                 720ULL,
+      /* 7!*/                5040ULL,
+      /* 8!*/               40320ULL,
+      /* 9!*/              362880ULL,
+      /*10!*/             3628800ULL,
+      /*11!*/            39916800ULL,
+      /*12!*/           479001600ULL, /* TODO: max factorial for 32-bit integers */
+      /*13!*/          6227020800ULL,
+      /*14!*/         87178291200ULL,
+      /*15!*/       1307674368000ULL,
+      /*16!*/      20922789888000ULL,
+      /*17!*/     355687428096000ULL,
+      /*18!*/    6402373705728000ULL,
+      /*19!*/  121645100408832000ULL,
+      /*20!*/ 2432902008176640000ULL, /* TODO: max factorial for 64-bit integers */
+    };
+    size_t factorials_c = sizeof(factorials) / sizeof(*factorials);
+  </code></pre>
+
+  <h3 id="arbitraryprecisionarithmaticcalculators">Arbitrary Precision Arithmatic Calculators</h3>
+
+  <p>Two methods are presented that provide arbitrary precision solutions; one via the <a href="https://gmplib.org">GNU Multiple Precision Arithmetic Library</a>, the other from an article on the <a href="https://www.geeksforgeeks.org/factorial-large-number/">Geeks for Geeks</a> portal. These methods both provide results that far outstrip the results of the largest available integer calculators.</p>
+
+  <h3 id="floatingpointcalculators">Floating Point Calculators</h3>
+
+  <p>For completness the floating point types are also provided. The three floating point types <code>float</code>, <code>double</code>, and <code>long double</code>. These types while allowing very large values are limited in accuracy due to the design of floating point arithmatic and the losses introduced. However, floating point results perform marginally better than their integer equivalents: a float is accurate up to 13!, double to 22!, and long double to 25!</p>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> Factorial </th>
+    <th style="text-align:left;"> Type </th>
+    <th style="text-align:right;"> Value </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:left;"> <code>int32_t</code> &amp; <code>uint32_t</code> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:left;"> <code>int64_t</code> &amp; <code>uint64_t</code> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>22!</strong> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:right;"> <code>1124000727777607680000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>25!</strong> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:right;"> <code>15511210043330985984000000</code> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <h2 id="appendices">Appendices</h2>
+
+  <h3 id="a1.builddetails">A1. Build Details</h3>
+
+  <p>Built with Xcode 11.3.1 (clang C and clang++ C++ compilers).</p>
+
+  <h4 id="additionalbuildswitches">Additional Build switches</h4>
+
+  <dl>
+  <dt><strong>C Switches</strong></dt>
+  <dd> <strong><code>-std=gnu17</code></strong> <em>[C Language Dialect]</em></dd>
+
+  <dt><strong>C++ Switches</strong></dt>
+  <dd> <strong><code>-std=gnu++17</code></strong> <em>[C++ Language Dialect]</em></dd>
+
+  <dt><strong>Other Linker Flags</strong></dt>
+  <dd> <strong><code>-lm</code></strong> <em>[Math Library]</em></dd>
+
+  <dd> <strong><code>-lgmp</code></strong> <em>[GNU Multiple Precision Library]</em></dd>
+
+  <dt><strong>Entitlements</strong></dt>
+  <dd> <strong>Disable Library Validation</strong>: <code>Yes</code></dd>
+  </dl>
+
+  <h3 id="a2.references">A2. References</h3>
+
+  <ul>
+  <li><a href="https://www.cs.colorado.edu/~srirams/courses/csci2824-spr14/gmpTutorial.html">https://www.cs.colorado.edu/~srirams/courses/csci2824-spr14/gmpTutorial.html</a></li>
+  <li><a href="https://gmplib.org/manual/index.html#Top">https://gmplib.org/manual/index.html#Top</a></li>
+  <li><a href="https://github.com/opencv/opencv/issues/15645">https://github.com/opencv/opencv/issues/15645</a></li>
+  <li><a href="https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html">https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html</a></li>
+  <li><a href="https://www.geeksforgeeks.org/factorial-large-number/">https://www.geeksforgeeks.org/factorial-large-number/</a></li>
+  </ul>
+</body>
+</html>
