@@ -1,0 +1,38 @@
+@CHARSET "UTF-8";
+
+.body {
+  font-family:   "Geneva", "Verdana", "Helvetica Neue", "Helvetica", "DejaVu Sans", "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+  margin-top:    3.0em;
+  margin-bottom: 2.0em;
+  margin-left:   5.0em;
+  margin-right:  3.0em;
+  padding:       0.2em;
+}
+
+table.ct0 {
+  border-collapse: collapse;
+  border-width:    0.1em;
+  padding:         0.2em;
+}
+
+.body {
+  font-family:   "Geneva", "Verdana", "Helvetica Neue", "Helvetica", "DejaVu Sans", "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+}
+
+.code {
+  font-family: "Monaco", "Menlo", "Consolas", "Lucida Console", "DejaVu Sans Mono", "Andale Mono", "Courier New", "Courier", "monospace";
+  font-size:   smaller;
+  color:       green;
+}
+
+.print {
+  font-family: "Georgia", "Baskerville", "Hoefler Text", "Didot", "Palatino", "Garamond", "DejaVu Serif", "Times New Roman", "Times", serif;
+}
+
+.fancy {
+  font-family: "Papyrus", "Marker Felt", "Herculanum", "Capitals", "Copperplate", "Haettenschweiler", "Snap ITC", "Impact", fantasy;
+}
+
+.script {
+  font-family: "Appler Chancery", "Zapfino", "Apple Casual", "Monotype Corsiva", "Brush Script MT", "Comic Sans MS", cursive;
+}
