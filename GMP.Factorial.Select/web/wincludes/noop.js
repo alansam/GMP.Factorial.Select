@@ -1,21 +1,26 @@
 // JavaScript No-ops
 // -------------------------------------
 
+//  MARK: - Javascript
+//  MARK: no-operation
 function nop() {
   document.write("");
   return;
 }
 
+//  MARK: no-operation
 function noop() {
   nop();
   return;
 }
 
+//  MARK: xyzzy()
 function xyzzy() {
   document.write("Nothing happens");
   return;
 }
 
+//  MARK: plover()
 function plover() {
   var _lt  = '\u003c';
   var _gt  = '\u003e';

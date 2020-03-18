@@ -1,6 +1,8 @@
 // JavaScript Document
 // -------------------------------------
 
+//  MARK: - Javascript
+//  MARK: date creation
 function createDate() {
 
   var _lt = '<';
