@@ -2,6 +2,7 @@
 //  factorial_select.c
 //  GMP.Factorial.Select
 //
+//  MARK: - References
 //  @see: https://www.cs.colorado.edu/~srirams/courses/csci2824-spr14/gmpTutorial.html
 //  @see: https://gmplib.org/manual/index.html#Top
 //  @see: https://github.com/opencv/opencv/issues/15645
@@ -23,20 +24,49 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <string.h>
 #include <float.h>
 #include <gmp.h>
 
 #include "gfg-factorial.hpp"
 
+//  TODO: Check availability of 128-bit integers
+#ifndef __SIZEOF_INT128__
+# pragma message "128-bit integers not defined."
+# define __SIZEOF_INT128__ sizeof(int32_t)
+#endif
+
+//  MARK: - Definition of typedef, union, structure, etc.
+typedef __int128 int128_t;
+typedef unsigned __int128 uint128_t;
+
+//  MARK: union biggar
+union biggar {
+  uint128_t   ui128;
+  int128_t    si128;
+  uint64_t    ui64_a[__SIZEOF_INT128__ / sizeof(uint64_t)];
+  uint32_t    ui32_a[__SIZEOF_INT128__ / sizeof(uint32_t)];
+  uint16_t    ui16_a[__SIZEOF_INT128__ / sizeof(uint16_t)];
+  uint8_t     ui8_a[__SIZEOF_INT128__  / sizeof(uint8_t)];
+};
+typedef union biggar biggar;
+
+// MARK: - Prototypes -
+//  MARK: Inline Function Localization
+// This needs to be before the inclusion of version_info.h
 static
 inline
 void version_details(void);
+
 #include "version_info.h"
 
+//  MARK: Drivers
 void factorial_u32(uint64_t nbegin, uint64_t nend);
 void factorial_s32(uint64_t nbegin, uint64_t nend);
 void factorial_u64(uint64_t nbegin, uint64_t nend);
 void factorial_s64(uint64_t nbegin, uint64_t nend);
+void factorial_u128(uint64_t nbegin, uint64_t nend);
+void factorial_s128(uint64_t nbegin, uint64_t nend);
 void factorial_gmp(uint64_t nbegin, uint64_t nend);
 void factorial_gfg(uint64_t nbegin, uint64_t nend);
 void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend);
@@ -44,17 +74,27 @@ void factorial_u64_tabular(uint64_t nbegin, uint64_t nend);
 void factorial_float(uint64_t nbegin, uint64_t nend);
 void factorial_double(uint64_t nbegin, uint64_t nend);
 void factorial_longdouble(uint64_t nbegin, uint64_t nend);
+//  MARK: Factorial Calculators
 void fact_u32(uint64_t val);
 void fact_s32(uint64_t val);
 void fact_u64(uint64_t val);
 void fact_s64(uint64_t val);
+void fact_u128(uint64_t val);
+void fact_s128(uint64_t val);
 void fact_gmp(uint64_t val);
 void fact_u64_unrolled(uint64_t val);
 void fact_u64_tabular(uint64_t val);
 void fact_float(uint64_t val);
 void fact_double(uint64_t val);
 void fact_longdouble(uint64_t val);
+//  MARK: Helpers
+bool umulj_overflow(uint128_t multiplicand, uint128_t multiplier, uint128_t * product);
+bool smulj_overflow(int128_t  multiplicand, int128_t  multiplier, int128_t * product);
+char * uint128toa(uint128_t big, char * buffp, size_t const buff_len);
+char * int128toa(int128_t big, char * buffp, size_t const buff_len);
+int printf_fact128str(uint64_t val, char ** pnrstr, bool overflowed, size_t * ppw_max);
 
+// MARK: - Implementation
 /*
  *  MARK: main()
  */
@@ -82,6 +122,10 @@ int main(int argc, char const * argv[]) {
     putchar('\n');
     factorial_s64(nbegin, nend);
     putchar('\n');
+    factorial_u128(nbegin, nend);
+    putchar('\n');
+    factorial_s128(nbegin, nend);
+    putchar('\n');
     factorial_gmp(nbegin, nend);
     putchar('\n');
     factorial_gfg(nbegin, nend);
@@ -101,6 +145,8 @@ int main(int argc, char const * argv[]) {
   return RC;
 }
 
+//  MARK: - Drivers -
+//  MARK: <--> 32-bit drivers
 /*
  *  MARK: factorial_u32()
  *
@@ -110,7 +156,7 @@ void factorial_u32(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {32-bit values}:\n\n", nbegin, nend);
-  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", UINT32_MAX, "UINT32_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_s32(nb);
   }
@@ -127,7 +173,7 @@ void factorial_s32(uint64_t nbegin, uint64_t nend) {
   
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {32-bit values}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
+  printf("......>: %20" PRId32 " <-- %s\n", INT32_MAX, "INT32_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_u32(nb);
   }
@@ -135,6 +181,7 @@ void factorial_s32(uint64_t nbegin, uint64_t nend) {
   return;
 }
 
+//  MARK: <--> 64-bit drivers
 /*
  *  MARK: factorial_u64()
  *
@@ -144,7 +191,7 @@ void factorial_u64(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_u64(nb);
   }
@@ -161,7 +208,7 @@ void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_u64_unrolled(nb);
   }
@@ -178,7 +225,7 @@ void factorial_u64_tabular(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_u64_tabular(nb);
   }
@@ -195,7 +242,7 @@ void factorial_s64(uint64_t nbegin, uint64_t nend) {
   
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_s64(nb);
   }
@@ -203,6 +250,82 @@ void factorial_s64(uint64_t nbegin, uint64_t nend) {
   return;
 }
 
+//  MARK: <--> 128-bit drivers
+/*
+ *  MARK: factorial_u128()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
+ *
+ *      ----+----1----+----2----+----3----+---*4----+----5----+----6
+ * 32!: 263130836933693530167218012160000000
+ * 33!: 8683317618811886495518194401280000000
+ * 34!: -45049567881334322615755997788248211456 *- overflow -*
+ * 35!: 124676958757991025765413114570153656320 *- overflow -*
+ * 36!: 64699745315476902531002227912544878592 *- overflow -*
+ *
+ */
+void factorial_u128(uint64_t nbegin, uint64_t nend) {
+
+  biggar bggr = {
+    .ui64_a[0] = 0xffffffffffffffffLL,
+    .ui64_a[1] = 0xffffffffffffffffLL,
+  };
+  size_t const pbuff_l = 41;
+  char pbuff[pbuff_l] = {0, };
+  uint128toa(bggr.ui128, pbuff, pbuff_l);
+  printf("Function: %s\n", __func__);
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
+  printf("......>: %40" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
+  printf("......>: %40s <-- %s\n", pbuff, "Max unsigned 128-bit integer");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_u128(nb);
+  }
+
+  return;
+}
+
+/*
+ *  MARK: factorial_s128()
+ *
+ *  Display table of factorials within ranges "nbegin" and "nend"
+ *
+ *      ----+----1----+----2----+----3----+---*4----+----5----+----6
+ * 33!: 8683317618811886495518194401280000000
+ * 34!: 295232799039604140847618609643520000000
+ * 35!: 124676958757991025765413114570153656320 *- overflow -*
+ * 36!: 64699745315476902531002227912544878592 *- overflow -*
+ *
+ */
+void factorial_s128(uint64_t nbegin, uint64_t nend) {
+  
+  
+  biggar bggr_max = {
+    .ui64_a[0] = 0xffffffffffffffffLL,
+    .ui64_a[1] = 0x7fffffffffffffffLL,
+  };
+  biggar bggr_min = {
+    .ui64_a[0] = 0x0000000000000000LL,
+    .ui64_a[1] = 0x8000000000000000LL,
+  };
+  size_t const pbuff_l = 41;
+  char pbuff_max[pbuff_l] = { 0, };
+  char pbuff_min[pbuff_l] = { 0, };
+  int128toa(bggr_max.ui128, pbuff_max, pbuff_l);
+  int128toa(bggr_min.ui128, pbuff_min, pbuff_l);
+  printf("Function: %s\n", __func__);
+  printf("Factorials from %" PRIu64 " to %" PRIu64 " {64-bit values}:\n\n", nbegin, nend);
+  printf("......>: %40" PRId64 " <-- %s\n", INT64_MIN, "INT64_MIN");
+  printf("......>: %40" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
+  printf("......>: %40s <-- %s\n", pbuff_min, "Min signed 128-bit integer");
+  printf("......>: %40s <-- %s\n", pbuff_max, "Max signed 128-bit integer");
+  for (uint64_t nb = nbegin; nb <= nend; ++nb) {
+    fact_s128(nb);
+  }
+
+  return;
+}
+
+//  MARK: <--> BigNum (multiple precision) drivers
 /*
  *  MARK: factorial_gmp()
  *
@@ -212,10 +335,10 @@ void factorial_gmp(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {multiple precision arithmatic}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
-  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
-  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20" PRId32 " <-- %s\n", INT32_MAX, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", UINT32_MAX, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_gmp(nb);
   }
@@ -232,10 +355,10 @@ void factorial_gfg(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {multiple precision arithmatic}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
-  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
-  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
+  printf("......>: %20" PRId32 " <-- %s\n", INT32_MAX, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", UINT32_MAX, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     gfg_factorial(nb);
   }
@@ -243,6 +366,7 @@ void factorial_gfg(uint64_t nbegin, uint64_t nend) {
   return;
 }
 
+//  MARK: <--> floating point drivers
 /*
  *  MARK: factorial_float()
  */
@@ -250,16 +374,16 @@ void factorial_float(uint64_t nbegin, uint64_t nend) {
   
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {single precision floating point}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
-  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
-  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
-  printf("......>: %20.3f <-- %s\n", __FLT_MAX__, "FLT_MAX");
-  printf("......>: %20.14e <-- %s\n", __FLT_MAX__, "FLT_MAX");
-  printf("......>: %20.3lf <-- %s\n", __DBL_MAX__, "DBL_MAX");
-  printf("......>: %20.13le <-- %s\n", __DBL_MAX__, "DBL_MAX");
-  printf("......>: %20.3Lf <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
-  printf("......>: %20.12Le <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  printf("......>: %20" PRId32 " <-- %s\n", INT32_MAX, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", UINT32_MAX, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
+  printf("......>: %20.3f <-- %s\n", FLT_MAX, "FLT_MAX");
+  printf("......>: %20.14e <-- %s\n", FLT_MAX, "FLT_MAX");
+  printf("......>: %20.3lf <-- %s\n", DBL_MAX, "DBL_MAX");
+  printf("......>: %20.13le <-- %s\n", DBL_MAX, "DBL_MAX");
+  printf("......>: %20.3Lf <-- %s\n", LDBL_MAX, "LDBL_MAX");
+  printf("......>: %20.12Le <-- %s\n", LDBL_MAX, "LDBL_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_float(nb);
   }
@@ -274,16 +398,16 @@ void factorial_double(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {double precision floating point}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
-  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
-  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
-  printf("......>: %20.3f <-- %s\n", __FLT_MAX__, "FLT_MAX");
-  printf("......>: %20.14e <-- %s\n", __FLT_MAX__, "FLT_MAX");
-  printf("......>: %20.3lf <-- %s\n", __DBL_MAX__, "DBL_MAX");
-  printf("......>: %20.13le <-- %s\n", __DBL_MAX__, "DBL_MAX");
-  printf("......>: %20.3Lf <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
-  printf("......>: %20.12Le <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  printf("......>: %20" PRId32 " <-- %s\n", INT32_MAX, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", UINT32_MAX, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
+  printf("......>: %20.3f <-- %s\n", FLT_MAX, "FLT_MAX");
+  printf("......>: %20.14e <-- %s\n", FLT_MAX, "FLT_MAX");
+  printf("......>: %20.3lf <-- %s\n", DBL_MAX, "DBL_MAX");
+  printf("......>: %20.13le <-- %s\n", DBL_MAX, "DBL_MAX");
+  printf("......>: %20.3Lf <-- %s\n", LDBL_MAX, "LDBL_MAX");
+  printf("......>: %20.12Le <-- %s\n", LDBL_MAX, "LDBL_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_double(nb);
   }
@@ -298,16 +422,16 @@ void factorial_longdouble(uint64_t nbegin, uint64_t nend) {
 
   printf("Function: %s\n", __func__);
   printf("Factorials from %" PRIu64 " to %" PRIu64 " {long double precision floating point}:\n\n", nbegin, nend);
-  printf("......>: %20" PRId32 " <-- %s\n", __INT32_MAX__, "INT32_MAX");
-  printf("......>: %20" PRIu32 " <-- %s\n", __UINT32_MAX__, "UINT32_MAX");
-  printf("......>: %20" PRId64 " <-- %s\n", __INT64_MAX__, "INT64_MAX");
-  printf("......>: %20" PRIu64 " <-- %s\n", __UINT64_MAX__, "UINT64_MAX");
-  printf("......>: %20.3f <-- %s\n", __FLT_MAX__, "FLT_MAX");
-  printf("......>: %20.14e <-- %s\n", __FLT_MAX__, "FLT_MAX");
-  printf("......>: %20.3lf <-- %s\n", __DBL_MAX__, "DBL_MAX");
-  printf("......>: %20.13le <-- %s\n", __DBL_MAX__, "DBL_MAX");
-  printf("......>: %20.3Lf <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
-  printf("......>: %20.12Le <-- %s\n", __LDBL_MAX__, "LDBL_MAX");
+  printf("......>: %20" PRId32 " <-- %s\n", INT32_MAX, "INT32_MAX");
+  printf("......>: %20" PRIu32 " <-- %s\n", UINT32_MAX, "UINT32_MAX");
+  printf("......>: %20" PRId64 " <-- %s\n", INT64_MAX, "INT64_MAX");
+  printf("......>: %20" PRIu64 " <-- %s\n", UINT64_MAX, "UINT64_MAX");
+  printf("......>: %20.3f <-- %s\n", FLT_MAX, "FLT_MAX");
+  printf("......>: %20.14e <-- %s\n", FLT_MAX, "FLT_MAX");
+  printf("......>: %20.3lf <-- %s\n", DBL_MAX, "DBL_MAX");
+  printf("......>: %20.13le <-- %s\n", DBL_MAX, "DBL_MAX");
+  printf("......>: %20.3Lf <-- %s\n", LDBL_MAX, "LDBL_MAX");
+  printf("......>: %20.12Le <-- %s\n", LDBL_MAX, "LDBL_MAX");
   for (uint64_t nb = nbegin; nb <= nend; ++nb) {
     fact_longdouble(nb);
   }
@@ -315,12 +439,21 @@ void factorial_longdouble(uint64_t nbegin, uint64_t nend) {
   return;
 }
 
+//  MARK: - Implementors -
+//  MARK: <--> 32-bit implementations
 /*
  *  MARK: fact_u32()
  *
  *  Calculate val! using unsigned 32-bit integers
  *  Arithmetic overflow is prevented via __builtin_umul_overflow()
  *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    catch any potential arithmentic overflow
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_u32(uint64_t val) {
 
@@ -348,6 +481,13 @@ void fact_u32(uint64_t val) {
  *  Calculate val! using signed 32-bit integers
  *  Arithmetic overflow is prevented via __builtin_smul_overflow()
  *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    catch any potential arithmentic overflow
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_s32(uint64_t val) {
   
@@ -369,12 +509,20 @@ void fact_s32(uint64_t val) {
   return;
 }
 
+//  MARK: <--> 64-bit implementations
 /*
  *  MARK: fact_u64()
  *
  *  Calculate val! using unsigned 64-bit integers
  *  Arithmetic overflow is prevented via __builtin_umulll_overflow()
  *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    catch any potential arithmentic overflow
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_u64(uint64_t val) {
 
@@ -526,6 +674,13 @@ void fact_u64_tabular(uint64_t val) {
  *  Calculate val! using signed 64-bit integers.
  *  Arithmetic overflow is prevented via __builtin_smulll_overflow()
  *  @see: https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    catch any potential arithmentic overflow
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_s64(uint64_t val) {
   
@@ -547,11 +702,101 @@ void fact_s64(uint64_t val) {
   return;
 }
 
+//  MARK: <--> 128-bit implementations
+/*
+ *  MARK: fact_u128()
+ *
+ *  Calculate val! using unsigned 128-bit integers
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    catch any potential arithmentic overflow
+ *    factorial = factorial * iterator
+ *  print result
+ */
+void fact_u128(uint64_t val) {
+
+  static size_t const nrstr_l = 41;
+  static size_t pwidth_max = 0;
+
+  uint128_t fv;
+  bool overflow;
+  bool overflowed;
+
+  fv = 1;
+  overflowed = false;;
+
+  for (uint64_t i_ = 1; i_ <= val ; ++i_) {
+    uint128_t intermediate;
+    overflow = umulj_overflow(fv, i_, &intermediate);
+    overflowed = overflowed ? overflowed : overflow;
+    fv = intermediate;
+  }
+
+  char * nrstr;
+
+  nrstr = malloc(nrstr_l);
+  nrstr = uint128toa(fv, nrstr, nrstr_l);
+  printf_fact128str(val, &nrstr, overflowed, &pwidth_max);
+  free(nrstr);
+
+  return;
+}
+
+/*
+ *  MARK: fact_s128()
+ *
+ *  Calculate val! using signed 128-bit integers.
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    catch any potential arithmentic overflow
+ *    factorial = factorial * iterator
+ *  print result
+ */
+void fact_s128(uint64_t val) {
+  
+  static size_t const nrstr_l = 41;
+  static size_t pwidth_max = 0;
+
+  int128_t fv;
+  bool overflow;
+  bool overflowed;
+
+  fv = 1;
+  overflowed = false;;
+
+  for (int64_t i_ = 1; i_ <= val ; ++i_) {
+    int128_t intermediate;
+    overflow = smulj_overflow(fv, i_, &intermediate);
+    overflowed = overflowed ? overflowed : overflow;
+    fv = intermediate;
+  }
+
+  char * nrstr;
+
+  nrstr = malloc(nrstr_l);
+  nrstr = int128toa(fv, nrstr, nrstr_l);
+  printf_fact128str(val, &nrstr, overflowed, &pwidth_max);
+  free(nrstr);
+
+  return;
+}
+
+//  MARK: <--> BigNum (multiple precision) implementations
 /*
  *  MARK: fact_gmp()
  *
  *  Calculate val! using GNU Multiple Precision Aritmetic Library (GMP)
  *  @see: https://gmplib.org/manual/index.html#Top
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_gmp(uint64_t val) {
 
@@ -568,8 +813,15 @@ void fact_gmp(uint64_t val) {
   return;
 }
 
+//  MARK: <--> floating point implementations
 /*
  *  MARK: fact_float()
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_float(uint64_t val) {
 
@@ -586,6 +838,12 @@ void fact_float(uint64_t val) {
 
 /*
  *  MARK: fact_double()
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_double(uint64_t val) {
 
@@ -602,6 +860,12 @@ void fact_double(uint64_t val) {
 
 /*
  *  MARK: fact_longdouble()
+ *
+ *  Uses an iterative method to calculate the factorial of the argument.
+ *  assign factorial the value 1
+ *  loop with iterator from 1 to argument
+ *    factorial = factorial * iterator
+ *  print result
  */
 void fact_longdouble(uint64_t val) {
 
@@ -614,4 +878,206 @@ void fact_longdouble(uint64_t val) {
   printf("%6" PRIu64 "!: %20.0Lf\n", val, fv);
 
   return;
+}
+
+//  MARK: - Utilities and Helper Functions -
+/*
+ *  MARK: umulj_overflow()
+ *
+ *  Check overflow multiplication for unsigned 128-bit integers
+ *
+ *  Basic algorithm:
+ *  get product as multiplication of multiplicand with multiplier
+ *  get quotient as division of product with multiplicand
+ *  compare quotient to multiplier - if not equal, overflow occured!
+ *  return outcome of comparison
+ */
+bool umulj_overflow(uint128_t multiplicand, uint128_t multiplier, uint128_t * product) {
+
+  /*
+   *  TODO: Formal terms used in equations:
+   *  addition:       augend        + addend      = sum
+   *  subtraction:    subtrahend    - minuend     = differnce
+   *  multiplication: multiplicand  x multiplier  = product
+   *  division:       dividend      ÷ divisor     = quotient
+   */
+  bool overflow;
+  if (product != NULL) {
+    uint128_t _product;  // TODO: debugging
+    uint128_t quotient;
+    *product = _product = multiplicand * multiplier;
+    quotient = _product / multiplicand;
+    overflow = (multiplicand != 0 && quotient != multiplier) ? true : false;
+  }
+  else {
+    //  TODO: better reporting of NULL pointer
+    overflow = true;
+  }
+
+  return overflow;
+}
+
+/*
+ *  MARK: smulj_overflow()
+ *
+ *  Check overflow multiplication for signed 128-bit integers
+ *
+ *  Basic algorithm:
+ *  get product as multiplication of multiplicand with multiplier
+ *  get quotient as division of product with multiplicand
+ *  compare quotient to multiplier - if not equal, overflow occured!
+ *  return outcome of comparison
+ */
+bool smulj_overflow(int128_t  multiplicand, int128_t  multiplier, int128_t * product) {
+
+  /*
+   *  TODO: Formal terms used in equations:
+   *  addition:       augend        + addend      = sum
+   *  subtraction:    subtrahend    - minuend     = differnce
+   *  multiplication: multiplicand  x multiplier  = product
+   *  division:       dividend      ÷ divisor     = quotient
+   */
+  bool overflow;
+  if (product != NULL) {
+    int128_t _product;   // TODO: debugging
+    int128_t quotient;
+    *product = _product = multiplicand * multiplier;
+    quotient = _product / multiplicand;
+    overflow = (multiplicand != 0 && quotient != multiplier) ? true : false;
+  }
+  else {
+    //  TODO: better reporting of NULL pointer
+    overflow = true;
+  }
+
+  return overflow;
+}
+
+/*
+ *  MARK: uint128toa()
+ *
+ *  String formatter for unsigned 128-bit integers
+ *
+ *  Basic algorithm:
+ *  Check output buffer is not NULL - done
+ *  Check for special case "zero": set output buffer to "0" - done
+ *  loop:
+ *    get modulo of number / 10
+ *    get character representation of modulo
+ *    store character representation in output buffer (fill from the right)
+ *    iterate
+ *  return output buffer
+ */
+char * uint128toa(uint128_t big, char * buffp, size_t const buff_len) {
+
+  char const * const numbers = "0123456789";
+  if (buffp != NULL) {
+    biggar bgr = { 0, };
+
+    bgr.ui128 = big;
+
+    if (big == 0) {
+      buffp[0] = numbers[0];
+      buffp[1] = '\0';
+    }
+    else {
+      char * str = malloc(buff_len * sizeof(char));
+      memset(str, 0, buff_len);
+      char * next = str + buff_len - 1; // start at right most char.
+      while (big != 0) {
+        *--next = numbers[big % 10];  // save last digit
+        big /= 10;                    // remove last digit
+      }
+      strncpy(buffp, next, buff_len);
+      free(str);
+    }
+  }
+
+  return buffp;
+}
+
+/*
+ *  MARK: int128toa()
+ *
+ *  String formatter for signed 128-bit integers
+ *
+ *  Basic algorithm:
+ *  Check output buffer is not NULL - done
+ *  Check for special case "zero": set output buffer to "0" - done
+ *  convert number to +ve
+ *  loop:
+ *    get modulo of number / 10
+ *    get character representation of modulo
+ *    store character representation in output buffer (fill from the right)
+ *    iterate
+ *  if number was -ve, insert a sign in buffer
+ *  return output buffer
+ */
+char * int128toa(int128_t big, char * buffp, size_t const buff_len) {
+
+  char const * const numbers = "0123456789";
+  if (buffp != NULL) {
+    biggar bgr = { 0, };
+
+    bgr.si128 = big;
+
+    if (big == 0) {
+      buffp[0] = numbers[0];
+      buffp[1] = '\0';
+    }
+    else {
+      char * str = malloc(buff_len * sizeof(char));
+      memset(str, 0, buff_len);
+      char * next = str + buff_len - 1; // start at right most char.
+      bgr.ui128 = big >= 0 ? big : ~big + 1;
+      while (bgr.ui128 != 0) {
+        *--next = numbers[bgr.ui128 % 10]; // save last digit
+        bgr.ui128 /= 10;                   // remove last digit
+      }
+      if (big < 0) {
+        *--next = '-';
+      }
+      strncpy(buffp, next, buff_len);
+      free(str);
+    }
+  }
+
+  return buffp;
+}
+
+/*
+ *  MARK: printf_fact128str()
+ */
+int printf_fact128str(uint64_t val, char ** pnrstr, bool overflowed, size_t * ppw_max) {
+
+  static size_t const nrstr_l = 41;
+
+  int pc;
+  char * nrstr;
+  size_t pwidth_max;
+  size_t pwidth_next;
+
+  nrstr = *pnrstr;
+  pwidth_max = *ppw_max;
+  pwidth_next = strlen(nrstr);
+
+  if (pwidth_next < pwidth_max) {
+    char * strwork;
+    char * here;
+
+    strwork = calloc(nrstr_l, sizeof(char));
+    here = strwork;
+    for (size_t n_ = 0; n_ < pwidth_max - pwidth_next; ++n_) {
+      *here++ = ' ';
+    }
+    strcpy(here, nrstr);
+    free(nrstr);
+
+    *pnrstr = nrstr = strwork;
+  }
+  *ppw_max = strlen(nrstr);
+  pc = printf("%6" PRIu64 "!: %20s %s\n",
+              val, nrstr, overflowed ? "*- overflow -*" : "");
+
+  return pc;
 }

@@ -1,0 +1,1305 @@
+<html>
+<head>
+  <title>Factorial Calculators</title>
+  <link rel="stylesheet" type="text/css" href="./wstyle/default.css" />
+  <style>
+  /* <!-- */
+  /* <![CDATA[ */
+  body {
+    font-size: 1.0em;
+  }
+
+  table {
+    /*font-size: 75%;*/
+    border-collapse: collapse;
+    border-width:    0.1em;
+    padding:         0.2em;
+  }
+
+  th, td {
+    border-width: medium;
+    border-style: solid;
+    padding: 0.3em;
+  }
+
+  .tcode {
+    font-family: "Monaco", "Menlo", "Consolas", "Lucida Console", "DejaVu Sans Mono", "Andale Mono", "Courier New", "Courier", "monospace";
+  }
+
+  code {
+    font-family: "Monaco", "Menlo", "Consolas", "Lucida Console", "DejaVu Sans Mono", "Andale Mono", "Courier New", "Courier", "monospace";
+    font-size:   smaller;
+    color:       green;
+  }
+
+  /* ]]> */
+  /* --> */
+  </style>
+</head>
+<body class="body">
+  <h1 id="factorialcalculatorsfordifferentdatatypes">Factorial Calculators for Different Data Types</h1>
+
+  <p>A selection of factorial calculations for the various data types available to C demonstrating the limitations
+  in those datatypes in dealing with very large numbers.</p>
+
+  <h2 id="cfunctionswithintheprogram">C functions within the program</h2>
+
+  <h3 id="driverfunctions">Driver Functions</h3>
+
+  <p>The driver functions set up the environment then a main loop that calls the related calculator function a specified number of times. The start and end values are provided as arguments to the program&#8217;s main
+  routine.</p>
+
+  <pre><code>
+  void factorial_u32(uint64_t nbegin, uint64_t nend);
+  void factorial_s32(uint64_t nbegin, uint64_t nend);
+  void factorial_u64(uint64_t nbegin, uint64_t nend);
+  void factorial_s64(uint64_t nbegin, uint64_t nend);
+  void factorial_u128(uint64_t nbegin, uint64_t nend);
+  void factorial_s128(uint64_t nbegin, uint64_t nend);
+
+  void factorial_u64_unrolled(uint64_t nbegin, uint64_t nend);
+  void factorial_u64_tabular(uint64_t nbegin, uint64_t nend);
+
+  void factorial_float(uint64_t nbegin, uint64_t nend);
+  void factorial_double(uint64_t nbegin, uint64_t nend);
+  void factorial_longdouble(uint64_t nbegin, uint64_t nend);
+
+  void factorial_gmp(uint64_t nbegin, uint64_t nend);
+  void factorial_gfg(uint64_t nbegin, uint64_t nend);
+  </code></pre>
+
+  <h3 id="factorialcalculators">Factorial Calculators</h3>
+
+  <p>Each calculator uses an iterative method to resolve the factorial of the value given as the argument to the function. Each function displays the result to the standard output stream. The functions are broken into three major groups: integer, floating point, and arbitary precision. The integer calculations are further broken down into iterative, unrolled loop and tabular methods.</p>
+
+  <pre><code>
+  void fact_u32(uint64_t val);
+  void fact_s32(uint64_t val);
+  void fact_u64(uint64_t val);
+  void fact_s64(uint64_t val);
+  void fact_u128(uint64_t val);
+  void fact_s128(uint64_t val);
+
+  void fact_u64_unrolled(uint64_t val);
+  void fact_u64_tabular(uint64_t val);
+
+  void fact_float(uint64_t val);
+  void fact_double(uint64_t val);
+  void fact_longdouble(uint64_t val);
+
+  void fact_gmp(uint64_t val);
+  void gfg_factorial(uint64_t n_fact);
+  </code></pre>
+
+  <h2 id="methodology">Methodology</h2>
+
+  <h3 id="integercalculators">Integer Calculators</h3>
+
+  <p><em><strong>NOTE:</strong> In the current compiler implementation; <code>long int</code> and <code>long long int</code> are both 64-bit.</em> <em>Limited 128-bit support is available with gcc and clang compilers.</em></p>
+
+  <p>While the C standard indicates that unsigned integer calculations can never overflow, this logically not
+  acceptable when calculating larhe integers. Because the language does not trap these overflows or throw exceptions the program takes steps to ensure that logical overflows are trapped and handled. The mechanism used via functions from the GNU built-in methods that perform arithmetic overflow checking: <code>__builtin_umul_overflow()</code> and <code>__builtin_smul_overflow()</code> etc. See the GNU document <a href="https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html">Built-in Functions to Perform Arithmetic with Overflow Checking</a> for details.</p>
+
+  <p>It should also be noted that the maximum size for <code>unsigned int</code>, <code>unsigned long int</code>, and <code>unsigned long long int</code> run out of space in very short order.
+  See the following table for details:</p>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> Factorial </th>
+    <th style="text-align:left;"> Type </th>
+    <th style="text-align:right;"> Value </th>
+    <th style="text-align:right;"> Maximum Signed Value </th>
+    <th style="text-align:right;"> Maximum Unsigned Value </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:left;"> <code>32-bit int</code> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:right;"> <code>2147483647</code> </td>
+    <td style="text-align:right;"> <code>4294967295</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:left;"> &mdash; </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:right;"> &mdash; </td>
+    <td style="text-align:right;"> &mdash; </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:left;"> <code>64-bit int</code> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+    <td style="text-align:right;"> <code>9223372036854775807</code> </td>
+    <td style="text-align:right;"> <code>18446744073709551615</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>21!</strong> </td>
+    <td style="text-align:left;"> &mdash; </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+    <td style="text-align:right;"> &mdash; </td>
+    <td style="text-align:right;"> &mdash; </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:left;"> <code>128-bit int</code> </td>
+    <td style="text-align:right;"> <code>8683317618811886495518194401280000000</code> </td>
+    <td style="text-align:right;"> <code>170141183460469231731687303715884105727</code> </td>
+    <td style="text-align:right;"> &mdash; </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:left;"> <code>128-bit int</code> </td>
+    <td style="text-align:right;"> <code>295232799039604140847618609643520000000</code> </td>
+    <td style="text-align:right;"> &mdash; </td>
+    <td style="text-align:right;"> <code>340282366920938463463374607431768211455</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>35!</strong> </td>
+    <td style="text-align:left;"> &mdash; </td>
+    <td style="text-align:right;"> <code>10333147966386144929666651337523200000000</code> </td>
+    <td style="text-align:right;"> &mdash; </td>
+    <td style="text-align:right;"> &mdash; </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>and the same data after pivoting the tables to better see the progression:</p>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:center;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:center;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> 32&#8211;bit values </th>
+    <th style="text-align:right;"> &nbsp; </th>
+    <th style="text-align:center;"> &mdash; </th>
+    <th style="text-align:left;"> 64&#8211;bit values </th>
+    <th style="text-align:right;"> &nbsp; </th>
+    <th style="text-align:center;"> &mdash; </th>
+    <th style="text-align:left;"> 128&#8211;bit values</th>
+    <th style="text-align:right;"> &nbsp; </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong>    </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:center;"> &mdash; </td>
+    <td style="text-align:left;"> <strong>20!</strong>          </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+    <td style="text-align:center;">&mdash; </td>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:right;"> <code>8683317618811886495518194401280000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong><code>INT_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>2147483647</code> </td>
+    <td style="text-align:center;"> &mdash; </td>
+    <td style="text-align:left;"> <strong><code>LONG_MAX</code>/<code>LLONG_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>9223372036854775807</code> </td>
+    <td style="text-align:center;">&mdash; </td>
+    <td style="text-align:left;"> max signed </td>
+    <td style="text-align:right;"> <code>170141183460469231731687303715884105727</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong><code>UINT_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>4294967295</code> </td>
+    <td style="text-align:center;"> &mdash; </td>
+    <td style="text-align:left;"> <strong><code>ULONG_MAX</code>/<code>ULLONG_MAX</code></strong> </td>
+    <td style="text-align:right;"> <code>18446744073709551615</code> </td>
+    <td style="text-align:center;">&mdash; </td>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:right;"> <code>295232799039604140847618609643520000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong>    </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:center;"> &mdash; </td>
+    <td style="text-align:left;"> <strong>21!</strong>          </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+    <td style="text-align:center;">&mdash; </td>
+    <td style="text-align:left;"> max unsigned </td>
+    <td style="text-align:right;"> <code>340282366920938463463374607431768211455</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp;   </td>
+    <td style="text-align:right;"> &nbsp;   </td>
+    <td style="text-align:center;"> &mdash; </td>
+    <td style="text-align:left;"> &nbsp;          </td>
+    <td style="text-align:right;"> &nbsp;         </td>
+    <td style="text-align:center;">&mdash; </td>
+    <td style="text-align:left;"> <strong>35!</strong> </td>
+    <td style="text-align:right;"> <code>10333147966386144929666651337523200000000</code> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <p>As these values are not particularly large, the largest iteration is 20 before integers run out of space, it&#8217;s simple to unroll both unroll loop and generate a lookup table for the first 20 factorial values. Both of these solutions are presented; the table of factorials is shown below.</p>
+
+  <h3 id="tableoffactorialvaluesfrom1to20">Table of factorial values from 1! to 20!</h3>
+
+  <pre><code>
+    uint64_t const factorials[] = {
+      /* 0!*/                   0ULL, /* TODO: Added to make picking factorials intuitive */
+      /* 1!*/                   1ULL,
+      /* 2!*/                   2ULL,
+      /* 3!*/                   6ULL,
+      /* 4!*/                  24ULL,
+      /* 5!*/                 120ULL,
+      /* 6!*/                 720ULL,
+      /* 7!*/                5040ULL,
+      /* 8!*/               40320ULL,
+      /* 9!*/              362880ULL,
+      /*10!*/             3628800ULL,
+      /*11!*/            39916800ULL,
+      /*12!*/           479001600ULL, /* TODO: max factorial for 32-bit integers */
+      /*13!*/          6227020800ULL,
+      /*14!*/         87178291200ULL,
+      /*15!*/       1307674368000ULL,
+      /*16!*/      20922789888000ULL,
+      /*17!*/     355687428096000ULL,
+      /*18!*/    6402373705728000ULL,
+      /*19!*/  121645100408832000ULL,
+      /*20!*/ 2432902008176640000ULL, /* TODO: max factorial for 64-bit integers */
+    };
+    size_t factorials_c = sizeof(factorials) / sizeof(*factorials);
+  </code></pre>
+
+  <h3 id="arbitraryprecisionarithmeticcalculators">Arbitrary Precision Arithmetic Calculators</h3>
+
+  <p>Two methods are presented that provide arbitrary precision solutions; one via the <a href="https://gmplib.org">GNU Multiple Precision Arithmetic Library</a>, the other from an article on the <a href="https://www.geeksforgeeks.org/factorial-large-number/">Geeks for Geeks</a> portal. These methods both provide results that far outstrip the results of the largest available integer calculators.</p>
+
+  <h4 id="tableoffactorialsfrom1to54">Table of Factorials from 1! to 54!</h4>
+
+  <table>
+  <colgroup>
+  <col style="text-align:right;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:right;"> Factorial </th>
+    <th style="text-align:right;"> Value </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:right;"> <strong>1!</strong> </td>
+    <td style="text-align:right;"> <code>1</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>2!</strong> </td>
+    <td style="text-align:right;"> <code>2</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>3!</strong> </td>
+    <td style="text-align:right;"> <code>6</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>4!</strong> </td>
+    <td style="text-align:right;"> <code>24</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>5!</strong> </td>
+    <td style="text-align:right;"> <code>120</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>6!</strong> </td>
+    <td style="text-align:right;"> <code>720</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>7!</strong> </td>
+    <td style="text-align:right;"> <code>5040</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>8!</strong> </td>
+    <td style="text-align:right;"> <code>40320</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>9!</strong> </td>
+    <td style="text-align:right;"> <code>362880</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>10!</strong> </td>
+    <td style="text-align:right;"> <code>3628800</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>11!</strong> </td>
+    <td style="text-align:right;"> <code>39916800</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>12!</strong> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>13!</strong> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>14!</strong> </td>
+    <td style="text-align:right;"> <code>87178291200</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>15!</strong> </td>
+    <td style="text-align:right;"> <code>1307674368000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>16!</strong> </td>
+    <td style="text-align:right;"> <code>20922789888000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>17!</strong> </td>
+    <td style="text-align:right;"> <code>355687428096000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>18!</strong> </td>
+    <td style="text-align:right;"> <code>6402373705728000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>19!</strong> </td>
+    <td style="text-align:right;"> <code>121645100408832000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>20!</strong> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>21!</strong> </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>22!</strong> </td>
+    <td style="text-align:right;"> <code>1124000727777607680000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>23!</strong> </td>
+    <td style="text-align:right;"> <code>25852016738884976640000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>24!</strong> </td>
+    <td style="text-align:right;"> <code>620448401733239439360000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>25!</strong> </td>
+    <td style="text-align:right;"> <code>15511210043330985984000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>26!</strong> </td>
+    <td style="text-align:right;"> <code>403291461126605635584000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>27!</strong> </td>
+    <td style="text-align:right;"> <code>10888869450418352160768000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>28!</strong> </td>
+    <td style="text-align:right;"> <code>304888344611713860501504000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>29!</strong> </td>
+    <td style="text-align:right;"> <code>8841761993739701954543616000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>30!</strong> </td>
+    <td style="text-align:right;"> <code>265252859812191058636308480000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>31!</strong> </td>
+    <td style="text-align:right;"> <code>8222838654177922817725562880000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>32!</strong> </td>
+    <td style="text-align:right;"> <code>263130836933693530167218012160000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>33!</strong> </td>
+    <td style="text-align:right;"> <code>8683317618811886495518194401280000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>34!</strong> </td>
+    <td style="text-align:right;"> <code>295232799039604140847618609643520000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>35!</strong> </td>
+    <td style="text-align:right;"> <code>10333147966386144929666651337523200000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>36!</strong> </td>
+    <td style="text-align:right;"> <code>371993326789901217467999448150835200000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>37!</strong> </td>
+    <td style="text-align:right;"> <code>13763753091226345046315979581580902400000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>38!</strong> </td>
+    <td style="text-align:right;"> <code>523022617466601111760007224100074291200000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>39!</strong> </td>
+    <td style="text-align:right;"> <code>20397882081197443358640281739902897356800000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>40!</strong> </td>
+    <td style="text-align:right;"> <code>815915283247897734345611269596115894272000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>41!</strong> </td>
+    <td style="text-align:right;"> <code>33452526613163807108170062053440751665152000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>42!</strong> </td>
+    <td style="text-align:right;"> <code>1405006117752879898543142606244511569936384000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>43!</strong> </td>
+    <td style="text-align:right;"> <code>60415263063373835637355132068513997507264512000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>44!</strong> </td>
+    <td style="text-align:right;"> <code>2658271574788448768043625811014615890319638528000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>45!</strong> </td>
+    <td style="text-align:right;"> <code>119622220865480194561963161495657715064383733760000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>46!</strong> </td>
+    <td style="text-align:right;"> <code>5502622159812088949850305428800254892961651752960000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>47!</strong> </td>
+    <td style="text-align:right;"> <code>258623241511168180642964355153611979969197632389120000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>48!</strong> </td>
+    <td style="text-align:right;"> <code>12413915592536072670862289047373375038521486354677760000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>49!</strong> </td>
+    <td style="text-align:right;"> <code>608281864034267560872252163321295376887552831379210240000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>50!</strong> </td>
+    <td style="text-align:right;"> <code>30414093201713378043612608166064768844377641568960512000000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>51!</strong> </td>
+    <td style="text-align:right;"> <code>1551118753287382280224243016469303211063259720016986112000000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>52!</strong> </td>
+    <td style="text-align:right;"> <code>80658175170943878571660636856403766975289505440883277824000000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>53!</strong> </td>
+    <td style="text-align:right;"> <code>4274883284060025564298013753389399649690343788366813724672000000000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:right;"> <strong>54!</strong> </td>
+    <td style="text-align:right;"> <code>230843697339241380472092742683027581083278564571807941132288000000000000</code> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <h3 id="floatingpointcalculators">Floating Point Calculators</h3>
+
+  <p>For completness the floating point types are also provided. The three floating point types <code>float</code>, <code>double</code>, and <code>long double</code>. These types while allowing very large values are limited in accuracy due to the design of floating point arithmatic and the losses introduced. However, floating point results perform marginally better than their integer equivalents: a float is accurate up to 13!, double to 22!, and long double to 25!</p>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> Factorial </th>
+    <th style="text-align:left;"> Type </th>
+    <th style="text-align:right;"> Value </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:left;"> <code>int32_t</code> &amp; <code>uint32_t</code> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:left;"> <code>int64_t</code> &amp; <code>uint64_t</code> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>22!</strong> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:right;"> <code>1124000727777607680000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>25!</strong> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:right;"> <code>15511210043330985984000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:left;"> <code>__int128</code> </td>
+    <td style="text-align:right;"> <code>8683317618811886495518194401280000000</code> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:left;"> <code>unsigned __int128</code> </td>
+    <td style="text-align:right;"> <code>295232799039604140847618609643520000000</code> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <h4 id="comparisonofresults.multipleprecisionvsfloatingpoint.">Comparison of results. Multiple precision vs floating point.</h4>
+
+  <table>
+  <colgroup>
+  <col style="text-align:left;"/>
+  <col style="text-align:right;"/>
+  <col style="text-align:left;"/>
+  <col style="text-align:center;"/>
+  <col style="text-align:left;"/>
+  </colgroup>
+
+  <thead>
+  <tr>
+    <th style="text-align:left;"> Factorial </th>
+    <th style="text-align:right;"> Value </th>
+    <th style="text-align:left;"> Type </th>
+    <th style="text-align:center;"> Match </th>
+    <th style="text-align:left;"> Note </th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr>
+    <td style="text-align:left;"> <strong>10!</strong> </td>
+    <td style="text-align:right;"> <code>3628800</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>10!</strong> </td>
+    <td style="text-align:right;"> <code>3628800</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>10!</strong> </td>
+    <td style="text-align:right;"> <code>3628800</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>10!</strong> </td>
+    <td style="text-align:right;"> <code>3628800</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>11!</strong> </td>
+    <td style="text-align:right;"> <code>39916800</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>11!</strong> </td>
+    <td style="text-align:right;"> <code>39916800</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>11!</strong> </td>
+    <td style="text-align:right;"> <code>39916800</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>11!</strong> </td>
+    <td style="text-align:right;"> <code>39916800</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> <em>max factorial for 32-bit integers</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>12!</strong> </td>
+    <td style="text-align:right;"> <code>479001600</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>13!</strong> </td>
+    <td style="text-align:right;"> <code>6227020800</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> <em>&lt;&#8211; last float</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>14!</strong> </td>
+    <td style="text-align:right;"> <code>87178291200</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>14!</strong> </td>
+    <td style="text-align:right;"> <code>87178291200</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>14!</strong> </td>
+    <td style="text-align:right;"> <code>87178291200</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>14!</strong> </td>
+    <td style="text-align:right;"> <code>87178289152</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>15!</strong> </td>
+    <td style="text-align:right;"> <code>1307674368000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>15!</strong> </td>
+    <td style="text-align:right;"> <code>1307674368000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>15!</strong> </td>
+    <td style="text-align:right;"> <code>1307674368000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>15!</strong> </td>
+    <td style="text-align:right;"> <code>1307674279936</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>16!</strong> </td>
+    <td style="text-align:right;"> <code>20922789888000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>16!</strong> </td>
+    <td style="text-align:right;"> <code>20922789888000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>16!</strong> </td>
+    <td style="text-align:right;"> <code>20922789888000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>16!</strong> </td>
+    <td style="text-align:right;"> <code>20922788478976</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>17!</strong> </td>
+    <td style="text-align:right;"> <code>355687428096000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>17!</strong> </td>
+    <td style="text-align:right;"> <code>355687428096000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>17!</strong> </td>
+    <td style="text-align:right;"> <code>355687428096000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>17!</strong> </td>
+    <td style="text-align:right;"> <code>355687414628352</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>18!</strong> </td>
+    <td style="text-align:right;"> <code>6402373705728000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>18!</strong> </td>
+    <td style="text-align:right;"> <code>6402373705728000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>18!</strong> </td>
+    <td style="text-align:right;"> <code>6402373705728000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>18!</strong> </td>
+    <td style="text-align:right;"> <code>6402373530419200</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>19!</strong> </td>
+    <td style="text-align:right;"> <code>121645100408832000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>19!</strong> </td>
+    <td style="text-align:right;"> <code>121645100408832000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>19!</strong> </td>
+    <td style="text-align:right;"> <code>121645100408832000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>19!</strong> </td>
+    <td style="text-align:right;"> <code>121645096004222976</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> <em>max factorial for 64-bit integers</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:right;"> <code>2432902008176640000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>20!</strong> </td>
+    <td style="text-align:right;"> <code>2432902023163674624</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>21!</strong> </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>21!</strong> </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>21!</strong> </td>
+    <td style="text-align:right;"> <code>51090942171709440000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>21!</strong> </td>
+    <td style="text-align:right;"> <code>51090940837169725440</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>22!</strong> </td>
+    <td style="text-align:right;"> <code>1124000727777607680000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>22!</strong> </td>
+    <td style="text-align:right;"> <code>1124000727777607680000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>22!</strong> </td>
+    <td style="text-align:right;"> <code>1124000727777607680000</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> <em>&lt;&#8211; last double</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>22!</strong> </td>
+    <td style="text-align:right;"> <code>1124000724806013026304</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>23!</strong> </td>
+    <td style="text-align:right;"> <code>25852016738884976640000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>23!</strong> </td>
+    <td style="text-align:right;"> <code>25852016738884976640000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>23!</strong> </td>
+    <td style="text-align:right;"> <code>25852016738884978212864</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>23!</strong> </td>
+    <td style="text-align:right;"> <code>25852017444594485559296</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>24!</strong> </td>
+    <td style="text-align:right;"> <code>620448401733239439360000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>24!</strong> </td>
+    <td style="text-align:right;"> <code>620448401733239439360000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>24!</strong> </td>
+    <td style="text-align:right;"> <code>620448401733239409999872</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>24!</strong> </td>
+    <td style="text-align:right;"> <code>620448454699064672387072</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>25!</strong> </td>
+    <td style="text-align:right;"> <code>15511210043330985984000000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>25!</strong> </td>
+    <td style="text-align:right;"> <code>15511210043330985984000000</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>yes</strong> </td>
+    <td style="text-align:left;"> <em>&lt;&#8211; last long double</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>25!</strong> </td>
+    <td style="text-align:right;"> <code>15511210043330986055303168</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>25!</strong> </td>
+    <td style="text-align:right;"> <code>15511211079246240657965056</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>26!</strong> </td>
+    <td style="text-align:right;"> <code>403291461126605635584000000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>26!</strong> </td>
+    <td style="text-align:right;"> <code>403291461126605635592388608</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>26!</strong> </td>
+    <td style="text-align:right;"> <code>403291461126605650322784256</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>26!</strong> </td>
+    <td style="text-align:right;"> <code>403291499589617303175561216</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:right;"> <code>8683317618811886495518194401280000000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> <em>max factorial for signed 128-bit integer</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:right;"> <code>8683317618811886496153221372728836096</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:right;"> <code>8683317618811885938715673895318323200</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>33!</strong> </td>
+    <td style="text-align:right;"> <code>8683318509846655538309012935952826368</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> &nbsp; </td>
+    <td style="text-align:right;"> </td>
+    <td style="text-align:left;"> </td>
+    <td style="text-align:center;"> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:right;"> <code>295232799039604140847618609643520000000</code> </td>
+    <td style="text-align:left;"> &ndash; </td>
+    <td style="text-align:center;"> &ndash; </td>
+    <td style="text-align:left;"> <em>max factorial for unsigned 128-bit integer</em> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:right;"> <code>295232799039604140861139076140532498432</code> </td>
+    <td style="text-align:left;"> <code>long double</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:right;"> <code>295232799039604119555149671006000381952</code> </td>
+    <td style="text-align:left;"> <code>double</code> </td>
+    <td style="text-align:center;"> <strong>low</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  <tr>
+    <td style="text-align:left;"> <strong>34!</strong> </td>
+    <td style="text-align:right;"> <code>295232822996533287161359432338880069632</code> </td>
+    <td style="text-align:left;"> <code>float</code> </td>
+    <td style="text-align:center;"> <strong>high</strong> </td>
+    <td style="text-align:left;"> </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <h2 id="appendices">Appendices</h2>
+
+  <h3 id="a1.builddetails">A1. Build Details</h3>
+
+  <p>Built with Xcode 11.3.1 (clang C and clang++ C++ compilers).</p>
+
+  <h4 id="additionalbuildswitches">Additional Build switches</h4>
+
+  <dl>
+  <dt><strong>C Switches</strong></dt>
+  <dd> <strong><code>-std=gnu17</code></strong> <em>[C Language Dialect]</em></dd>
+
+  <dt><strong>C++ Switches</strong></dt>
+  <dd> <strong><code>-std=gnu++17</code></strong> <em>[C++ Language Dialect]</em></dd>
+
+  <dt><strong>Other Linker Flags</strong></dt>
+  <dd> <strong><code>-lm</code></strong> <em>[Math Library]</em></dd>
+
+  <dd> <strong><code>-lgmp</code></strong> <em>[GNU Multiple Precision Library]</em></dd>
+
+  <dt><strong>Entitlements</strong></dt>
+  <dd> <strong>Disable Library Validation</strong>: <code>Yes</code></dd>
+  </dl>
+
+  <h3 id="a2.references">A2. References</h3>
+
+  <ul>
+  <li><a href="https://www.cs.colorado.edu/~srirams/courses/csci2824-spr14/gmpTutorial.html">https://www.cs.colorado.edu/~srirams/courses/csci2824-spr14/gmpTutorial.html</a></li>
+  <li><a href="https://gmplib.org/">https://gmplib.org/</a></li>
+  <li><a href="https://gmplib.org/manual/">https://gmplib.org/manual/</a></li>
+  <li><a href="https://github.com/opencv/opencv/issues/15645">https://github.com/opencv/opencv/issues/15645</a></li>
+  <li><a href="https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html">https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html</a></li>
+  <li><a href="https://www.geeksforgeeks.org/factorial-large-number/">https://www.geeksforgeeks.org/factorial-large-number/</a></li>
+  </ul>
+</body>
+</html>

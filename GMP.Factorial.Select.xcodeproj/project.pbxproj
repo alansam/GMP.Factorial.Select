@@ -24,6 +24,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5A7B046D24207ECD00868F24 /* wimages.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = wimages.txt; sourceTree = "<group>"; };
+		5A7B046E24207EED00868F24 /* noop.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = noop.js; sourceTree = "<group>"; };
+		5A7B046F24207EED00868F24 /* createDate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = createDate.js; sourceTree = "<group>"; };
+		5A7B047024207EFB00868F24 /* extras.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = extras.css; sourceTree = "<group>"; };
+		5A7B047124207EFB00868F24 /* default.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = default.css; sourceTree = "<group>"; };
+		5A7B047224207EFB00868F24 /* mystyle.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = mystyle.css; sourceTree = "<group>"; };
 		5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gfg-factorial.cpp"; sourceTree = "<group>"; };
 		5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "gfg-factorial.hpp"; sourceTree = "<group>"; };
 		5AB996F12418C254007F96BC /* factorial_select.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = factorial_select.log; sourceTree = "<group>"; };
@@ -48,6 +54,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5A7B046924207A3D00868F24 /* web */ = {
+			isa = PBXGroup;
+			children = (
+				5A7B046A24207A7100868F24 /* wimages */,
+				5A7B046B24207A7F00868F24 /* wincludes */,
+				5A7B046C24207A9000868F24 /* wstyle */,
+				5AB996F5241A359A007F96BC /* factorial_select.html */,
+				5AB996F4241A3578007F96BC /* markdown_cheat_sheet_links.html */,
+			);
+			path = web;
+			sourceTree = "<group>";
+		};
+		5A7B046A24207A7100868F24 /* wimages */ = {
+			isa = PBXGroup;
+			children = (
+				5A7B046D24207ECD00868F24 /* wimages.txt */,
+			);
+			path = wimages;
+			sourceTree = "<group>";
+		};
+		5A7B046B24207A7F00868F24 /* wincludes */ = {
+			isa = PBXGroup;
+			children = (
+				5A7B046F24207EED00868F24 /* createDate.js */,
+				5A7B046E24207EED00868F24 /* noop.js */,
+			);
+			path = wincludes;
+			sourceTree = "<group>";
+		};
+		5A7B046C24207A9000868F24 /* wstyle */ = {
+			isa = PBXGroup;
+			children = (
+				5A7B047124207EFB00868F24 /* default.css */,
+				5A7B047024207EFB00868F24 /* extras.css */,
+				5A7B047224207EFB00868F24 /* mystyle.css */,
+			);
+			path = wstyle;
+			sourceTree = "<group>";
+		};
 		5AD8144623DFF90600F4D012 = {
 			isa = PBXGroup;
 			children = (
@@ -74,9 +119,8 @@
 				5AD8145A23DFFCE800F4D012 /* GMP.Factorial.Select.entitlements */,
 				5AB996F12418C254007F96BC /* factorial_select.log */,
 				5AB996F224197DE0007F96BC /* factorial_select.md */,
-				5AB996F5241A359A007F96BC /* factorial_select.html */,
+				5A7B046924207A3D00868F24 /* web */,
 				5AB996F324197EA6007F96BC /* markdown_cheat_sheet_links.md */,
-				5AB996F4241A3578007F96BC /* markdown_cheat_sheet_links.html */,
 			);
 			path = GMP.Factorial.Select;
 			sourceTree = "<group>";
@@ -280,6 +324,8 @@
 				DEVELOPMENT_TEAM = HD3NHZ5324;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = /usr/local/lib;
 				"OTHER_LDFLAGS[arch=*]" = "-lgmp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
