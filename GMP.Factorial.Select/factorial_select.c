@@ -1058,26 +1058,31 @@ int printf_fact128str(uint64_t val, char ** pnrstr, bool overflowed, size_t * pp
   size_t pwidth_next;
 
   nrstr = *pnrstr;
-  pwidth_max = *ppw_max;
-  pwidth_next = strlen(nrstr);
+  if (nrstr != NULL) {
+    pwidth_max = *ppw_max;
+      pwidth_next = strlen(nrstr);
 
-  if (pwidth_next < pwidth_max) {
-    char * strwork;
-    char * here;
+      if (pwidth_next < pwidth_max) {
+        char * strwork;
+        char * here;
 
-    strwork = calloc(nrstr_l, sizeof(char));
-    here = strwork;
-    for (size_t n_ = 0; n_ < pwidth_max - pwidth_next; ++n_) {
-      *here++ = ' ';
-    }
-    strcpy(here, nrstr);
-    free(nrstr);
+        strwork = calloc(nrstr_l, sizeof(char));
+        here = strwork;
+        for (size_t n_ = 0; n_ < pwidth_max - pwidth_next; ++n_) {
+          *here++ = ' ';
+        }
+        strcpy(here, nrstr);
+        free(nrstr);
 
-    *pnrstr = nrstr = strwork;
+        *pnrstr = nrstr = strwork;
+      }
+      *ppw_max = strlen(nrstr);
+      pc = printf("%6" PRIu64 "!: %20s %s\n",
+                  val, nrstr, overflowed ? "*- overflow -*" : "");
   }
-  *ppw_max = strlen(nrstr);
-  pc = printf("%6" PRIu64 "!: %20s %s\n",
-              val, nrstr, overflowed ? "*- overflow -*" : "");
-
+  else {
+    pc = printf("%6" PRIu64 "!: %20s %s\n", val, "NullPointerException", "");
+  }
+  
   return pc;
 }
