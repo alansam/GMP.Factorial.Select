@@ -30,6 +30,7 @@
 		5A7B047024207EFB00868F24 /* extras.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = extras.css; sourceTree = "<group>"; };
 		5A7B047124207EFB00868F24 /* default.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = default.css; sourceTree = "<group>"; };
 		5A7B047224207EFB00868F24 /* mystyle.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = mystyle.css; sourceTree = "<group>"; };
+		5A7B04732423101800868F24 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		5A8AEE0D23E5EFC80066041A /* gfg-factorial.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gfg-factorial.cpp"; sourceTree = "<group>"; };
 		5A8AEE0E23E5EFC80066041A /* gfg-factorial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "gfg-factorial.hpp"; sourceTree = "<group>"; };
 		5AB996F12418C254007F96BC /* factorial_select.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = factorial_select.log; sourceTree = "<group>"; };
@@ -96,6 +97,7 @@
 		5AD8144623DFF90600F4D012 = {
 			isa = PBXGroup;
 			children = (
+				5A7B04732423101800868F24 /* README.md */,
 				5AD8145123DFF90600F4D012 /* GMP.Factorial.Select */,
 				5AD8145023DFF90600F4D012 /* Products */,
 			);
