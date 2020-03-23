@@ -51,8 +51,8 @@ void gfg_factorial(uint64_t n_fact);
 ### Integer Calculators
 ***NOTE:** In the current compiler implementation; `long int` and `long long int` are both 64-bit.* *Limited 128-bit support is available with gcc and clang compilers.*
 
-While the C standard indicates that unsigned integer calculations can never overflow, this logically not
-acceptable when calculating larhe integers. Because the language does not trap these overflows or throw exceptions the program takes steps to ensure that logical overflows are trapped and handled. The mechanism used via functions from the GNU built-in methods that perform arithmetic overflow checking:  `__builtin_umul_overflow()` and `__builtin_smul_overflow()` etc. See the GNU document [Built-in Functions to Perform Arithmetic with Overflow Checking](https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html) for details.
+While the C standard indicates that unsigned integer calculations can never overflow, this is, logically, not
+acceptable when calculating large integers. Because the language does not trap these overflows or throw exceptions the program takes steps to ensure that logical overflows are trapped and handled. The mechanism used is via functions from the GNU built-in methods that perform arithmetic overflow checking:  `__builtin_umul_overflow()` and `__builtin_smul_overflow()` etc. See the GNU document [Built-in Functions to Perform Arithmetic with Overflow Checking](https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html) for details.
 
 It should also be noted that the maximum size for `unsigned int`, `unsigned long int`, and `unsigned long long int` run out of space in very short order. 
 See the following table for details:

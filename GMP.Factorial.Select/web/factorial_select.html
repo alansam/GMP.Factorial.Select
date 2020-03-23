@@ -97,8 +97,8 @@
 
   <p><em><strong>NOTE:</strong> In the current compiler implementation; <code>long int</code> and <code>long long int</code> are both 64-bit.</em> <em>Limited 128-bit support is available with gcc and clang compilers.</em></p>
 
-  <p>While the C standard indicates that unsigned integer calculations can never overflow, this logically not
-  acceptable when calculating larhe integers. Because the language does not trap these overflows or throw exceptions the program takes steps to ensure that logical overflows are trapped and handled. The mechanism used via functions from the GNU built-in methods that perform arithmetic overflow checking: <code>__builtin_umul_overflow()</code> and <code>__builtin_smul_overflow()</code> etc. See the GNU document <a href="https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html">Built-in Functions to Perform Arithmetic with Overflow Checking</a> for details.</p>
+  <p>While the C standard indicates that unsigned integer calculations can never overflow, this is, logically, not
+  acceptable when calculating large integers. Because the language does not trap these overflows or throw exceptions the program takes steps to ensure that logical overflows are trapped and handled. The mechanism used is via functions from the GNU built-in methods that perform arithmetic overflow checking: <code>__builtin_umul_overflow()</code> and <code>__builtin_smul_overflow()</code> etc. See the GNU document <a href="https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html">Built-in Functions to Perform Arithmetic with Overflow Checking</a> for details.</p>
 
   <p>It should also be noted that the maximum size for <code>unsigned int</code>, <code>unsigned long int</code>, and <code>unsigned long long int</code> run out of space in very short order.
   See the following table for details:</p>
